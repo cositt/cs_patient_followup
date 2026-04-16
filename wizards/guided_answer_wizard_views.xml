@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <form string="Rellenado guiado">
                 <group>
+                    <field name="current_answer_id" invisible="1"/>
                     <group>
                         <field name="assessment_id"/>
                         <field name="position_label" readonly="1"/>
@@ -27,8 +28,8 @@
                     <field name="selected_option_id" invisible="answer_type != 'selection'" options="{'no_create': True, 'no_open': True}"/>
                 </group>
                 <footer>
-                    <button name="action_previous" type="object" string="Anterior"/>
-                    <button name="action_next" type="object" string="Siguiente" class="btn-primary"/>
+                    <button name="action_previous" type="object" string="Anterior" invisible="is_first_question"/>
+                    <button name="action_next" type="object" string="Siguiente" class="btn-primary" invisible="is_last_question"/>
                     <button name="action_save_and_close" type="object" string="Guardar y cerrar"/>
                     <button string="Cancelar" special="cancel"/>
                 </footer>

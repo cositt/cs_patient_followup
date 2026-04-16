@@ -46,23 +46,8 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
     value_boolean = fields.Boolean(string="Valor si/no")
     value_date = fields.Date(string="Valor fecha")
     value_selection = fields.Char(string="Valor seleccion (legacy)")
-
-    @api.model
-    def default_get(self, fields_list):
-        vals = super().default_get(fields_list)
-        assessment_id = vals.get("assessment_id")
-        if not assessment_id:
-            return vals
-
-        assessment = self.env["cs.followup.assessment"].browse(assessment_id)
-        ordered_answers = assessment._ordered_answers()
-        if not ordered_answers:
-            raise ValidationError(_("Esta evaluacion no tiene campos para rellenar."))
-
-        first_answer = ordered_answers[0]
-        vals["current_answer_id"] = first_answer.id
-        vals.update(self._prepare_ui_values_from_answer(first_answer))
-        return vals
+    is_first_question = fields.Boolean(string="Es primera pregunta", compute="_compute_is_first_last_question")
+    is_last_question = fields.Boolean(string="Es ultima pregunta", compute="_compute_is_first_last_question")
 
     @api.model
     def _prepare_ui_values_from_answer(self, answer):
@@ -79,6 +64,44 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
         if answer.answer_type == "selection":
             options = [line.strip() for line in (answer.template_field_id.option_values or "").splitlines() if line.strip()]
             vals["option_ids"] = [(5, 0, 0)] + [(0, 0, {"value": opt, "label": opt}) for opt in options]
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("current_answer_id"):
+                answer = self.env["cs.followup.assessment.answer"].browse(vals["current_answer_id"])
+            elif vals.get("assessment_id"):
+                assessment = self.env["cs.followup.assessment"].browse(vals["assessment_id"])
+                ordered_answers = assessment._ordered_answers()
+                answer = ordered_answers[:1]
+                if answer:
+                    vals["current_answer_id"] = answer.id
+            else:
+                answer = False
+
+            if answer:
+                prepared = self._prepare_ui_values_from_answer(answer)
+                for key, value in prepared.items():
+                    if key not in vals:
+                        vals[key] = value
+        return super().create(vals_list)
+
+    @api.model
+    def default_get(self, fields_list):
+        vals = super().default_get(fields_list)
+        assessment_id = vals.get("assessment_id")
+        if not assessment_id:
+            return vals
+
+        assessment = self.env["cs.followup.assessment"].browse(assessment_id)
+        ordered_answers = assessment._ordered_answers()
+        if not ordered_answers:
+            raise ValidationError(_("Esta evaluacion no tiene campos para rellenar."))
+
+        first_answer = ordered_answers[0]
+        vals["current_answer_id"] = first_answer.id
+        vals.update(self._prepare_ui_values_from_answer(first_answer))
         return vals
 
     @api.depends("current_answer_id")
@@ -99,6 +122,22 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
             ordered = rec.assessment_id._ordered_answers()
             index = ordered.ids.index(rec.current_answer_id.id) + 1 if rec.current_answer_id.id in ordered.ids else 1
             rec.position_label = _("%(idx)s de %(total)s") % {"idx": index, "total": len(ordered)}
+
+    @api.depends("current_answer_id", "assessment_id")
+    def _compute_is_first_last_question(self):
+        for rec in self:
+            if not rec.assessment_id or not rec.current_answer_id:
+                rec.is_first_question = False
+                rec.is_last_question = False
+                continue
+            ordered = rec.assessment_id._ordered_answers()
+            if rec.current_answer_id.id not in ordered.ids:
+                rec.is_first_question = False
+                rec.is_last_question = False
+                continue
+            index = ordered.ids.index(rec.current_answer_id.id)
+            rec.is_first_question = index == 0
+            rec.is_last_question = index == len(ordered) - 1
 
     @api.onchange("current_answer_id")
     def _onchange_current_answer_id_load_values(self):
@@ -184,6 +223,7 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
 class FollowupGuidedAnswerWizardOption(models.TransientModel):
     _name = "cs.followup.guided.answer.wizard.option"
     _description = "Followup Guided Answer Wizard Option"
+    _rec_name = "label"
 
     wizard_id = fields.Many2one("cs.followup.guided.answer.wizard", required=True, ondelete="cascade")
     label = fields.Char(string="Etiqueta", required=True)

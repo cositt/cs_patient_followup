@@ -92,15 +92,18 @@ class FollowupAssessment(models.Model):
 
     def action_open_guided_wizard(self):
         self.ensure_one()
+        wizard = self.env["cs.followup.guided.answer.wizard"].create(
+            {
+                "assessment_id": self.id,
+            }
+        )
         return {
             "type": "ir.actions.act_window",
             "name": "Rellenado guiado",
             "res_model": "cs.followup.guided.answer.wizard",
+            "res_id": wizard.id,
             "view_mode": "form",
             "target": "new",
-            "context": {
-                "default_assessment_id": self.id,
-            },
         }
 
     def _validate_answers_for_completion(self):
