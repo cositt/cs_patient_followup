@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_followup_root"
+        name="Seguimiento Pacientes"
+        sequence="40"
+        web_icon="cs_patient_followup_forms,static/icon.png"
+    />
+
+    <menuitem id="menu_followup_templates" name="Plantillas" parent="menu_followup_root" action="action_cs_followup_template" sequence="10"/>
+    <menuitem id="menu_followup_assessments" name="Evaluaciones" parent="menu_followup_root" action="action_cs_followup_assessment" sequence="20"/>
+</odoo>

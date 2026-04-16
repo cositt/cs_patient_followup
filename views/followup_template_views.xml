@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cs_followup_template_list" model="ir.ui.view">
+        <field name="name">cs.followup.template.list</field>
+        <field name="model">cs.followup.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="state"/>
+                <field name="version"/>
+                <field name="field_count"/>
+                <field name="company_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cs_followup_template_form" model="ir.ui.view">
+        <field name="name">cs.followup.template.form</field>
+        <field name="model">cs.followup.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publish" type="object" string="Publicar" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_set_draft" type="object" string="Borrador" invisible="state == 'draft'"/>
+                    <button name="action_archive" type="object" string="Archivar" invisible="state == 'archived'"/>
+                    <button name="action_open_add_field_wizard" type="object" string="Nuevo campo" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,published,archived"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="version"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                            <field name="field_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Descripcion">
+                            <field name="description"/>
+                        </page>
+                        <page string="Secciones">
+                            <field name="section_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" string="Orden"/>
+                                    <field name="name"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="template_id" invisible="1"/>
+                                        <field name="sequence" string="Orden"/>
+                                        <field name="name"/>
+                                    </group>
+                                    <field name="field_ids">
+                                        <list editable="bottom">
+                                            <field name="sequence" string="Orden"/>
+                                            <field name="name"/>
+                                            <field name="field_type"/>
+                                            <field name="required"/>
+                                            <field name="code"/>
+                                        </list>
+                                    </field>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Campos">
+                            <field name="template_field_ids" readonly="1" context="{'default_template_id': id}">
+                                <list create="0" delete="0">
+                                    <field name="section_id"/>
+                                    <field name="sequence" string="Orden"/>
+                                    <field name="name"/>
+                                    <field name="field_type"/>
+                                    <field name="option_values" optional="hide"/>
+                                    <field name="required"/>
+                                    <field name="code"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_cs_followup_template_field_list" model="ir.ui.view">
+        <field name="name">cs.followup.template.field.list</field>
+        <field name="model">cs.followup.template.field</field>
+        <field name="arch" type="xml">
+            <list create="0">
+                <field name="template_id" readonly="1"/>
+                <field name="section_id" domain="[('template_id', '=', context.get('default_template_id'))]"/>
+                <field name="sequence" string="Orden"/>
+                <field name="name"/>
+                <field name="field_type"/>
+                <field name="option_values" string="Opciones (una por linea, varias permitidas)"/>
+                <field name="required"/>
+                <field name="code"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cs_followup_template_field_form" model="ir.ui.view">
+        <field name="name">cs.followup.template.field.form</field>
+        <field name="model">cs.followup.template.field</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="template_id" readonly="1"/>
+                            <field name="section_id" domain="[('template_id', '=', context.get('default_template_id'))]"/>
+                            <field name="sequence" string="Orden"/>
+                            <field name="name"/>
+                            <field name="field_type"/>
+                            <field name="required"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="help_text"/>
+                            <field name="option_values" invisible="field_type != 'selection'"/>
+                            <field name="min_value" invisible="field_type != 'scale_1_10'"/>
+                            <field name="max_value" invisible="field_type != 'scale_1_10'"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cs_followup_template" model="ir.actions.act_window">
+        <field name="name">Plantillas</field>
+        <field name="res_model">cs.followup.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

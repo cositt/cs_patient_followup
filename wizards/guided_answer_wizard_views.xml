@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cs_followup_guided_answer_wizard_form" model="ir.ui.view">
+        <field name="name">cs.followup.guided.answer.wizard.form</field>
+        <field name="model">cs.followup.guided.answer.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Rellenado guiado">
+                <group>
+                    <group>
+                        <field name="assessment_id"/>
+                        <field name="position_label" readonly="1"/>
+                        <field name="question_label" readonly="1"/>
+                        <field name="answer_type" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="question_help" readonly="1" invisible="not question_help"/>
+                        <field name="options_hint" readonly="1" invisible="answer_type != 'selection'"/>
+                    </group>
+                </group>
+                <separator string="Respuesta"/>
+                <group>
+                    <field name="value_text" invisible="answer_type != 'text_short'"/>
+                    <field name="value_text_long" invisible="answer_type != 'text_long'"/>
+                    <field name="value_number" invisible="answer_type != 'scale_1_10'"/>
+                    <field name="value_boolean" invisible="answer_type != 'boolean'"/>
+                    <field name="value_date" invisible="answer_type != 'date'"/>
+                    <field name="selected_option_id" invisible="answer_type != 'selection'" options="{'no_create': True, 'no_open': True}"/>
+                </group>
+                <footer>
+                    <button name="action_previous" type="object" string="Anterior"/>
+                    <button name="action_next" type="object" string="Siguiente" class="btn-primary"/>
+                    <button name="action_save_and_close" type="object" string="Guardar y cerrar"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
