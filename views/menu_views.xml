@@ -2,7 +2,7 @@
 <odoo>
     <menuitem
         id="menu_followup_root"
-        name="Seguimiento Pacientes"
+        name="Followup Pacientes"
         sequence="40"
         web_icon="cs_patient_followup_forms,static/icon.png"
     />

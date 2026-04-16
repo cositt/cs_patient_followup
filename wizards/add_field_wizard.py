@@ -23,6 +23,7 @@ class FollowupAddFieldWizard(models.TransientModel):
             ("text_long", "Texto largo"),
             ("date", "Fecha"),
             ("selection", "Seleccion"),
+            ("image", "Imagen"),
         ],
         string="Tipo",
         required=True,

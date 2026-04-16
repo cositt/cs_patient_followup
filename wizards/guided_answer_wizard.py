@@ -23,6 +23,7 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
             ("text_long", "Texto largo"),
             ("date", "Fecha"),
             ("selection", "Seleccion"),
+            ("image", "Imagen"),
         ],
         string="Tipo",
         compute="_compute_question_data",
@@ -46,6 +47,7 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
     value_boolean = fields.Boolean(string="Valor si/no")
     value_date = fields.Date(string="Valor fecha")
     value_selection = fields.Char(string="Valor seleccion (legacy)")
+    value_image = fields.Binary(string="Imagen", attachment=True)
     is_first_question = fields.Boolean(string="Es primera pregunta", compute="_compute_is_first_last_question")
     is_last_question = fields.Boolean(string="Es ultima pregunta", compute="_compute_is_first_last_question")
 
@@ -58,6 +60,7 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
             "value_boolean": answer.value_boolean,
             "value_date": answer.value_date,
             "value_selection": answer.value_selection,
+            "value_image": answer.value_image,
             "selected_option_id": False,
             "option_ids": [(5, 0, 0)],
         }
@@ -158,6 +161,7 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
             rec.value_boolean = answer.value_boolean
             rec.value_date = answer.value_date
             rec.value_selection = answer.value_selection
+            rec.value_image = answer.value_image
 
     def _write_current_answer_value(self):
         self.ensure_one()
@@ -169,6 +173,7 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
             "value_boolean": False,
             "value_date": False,
             "value_selection": False,
+            "value_image": False,
         }
 
         if answer.answer_type == "text_short":
@@ -183,6 +188,8 @@ class FollowupGuidedAnswerWizard(models.TransientModel):
             vals["value_date"] = self.value_date
         elif answer.answer_type == "selection":
             vals["value_selection"] = self.selected_option_id.value or False
+        elif answer.answer_type == "image":
+            vals["value_image"] = self.value_image
 
         answer.write(vals)
 

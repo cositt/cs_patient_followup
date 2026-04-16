@@ -26,6 +26,7 @@
                     <field name="value_boolean" invisible="answer_type != 'boolean'"/>
                     <field name="value_date" invisible="answer_type != 'date'"/>
                     <field name="selected_option_id" invisible="answer_type != 'selection'" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="value_image" invisible="answer_type != 'image'" widget="image"/>
                 </group>
                 <footer>
                     <button name="action_previous" type="object" string="Anterior" invisible="is_first_question"/>

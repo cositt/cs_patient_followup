@@ -22,6 +22,7 @@
             <form>
                 <header>
                     <button name="action_open_guided_wizard" type="object" string="Rellenado guiado" class="btn-secondary" invisible="state != 'draft'"/>
+                    <button name="action_download_pdf" type="object" string="⬇️ Descargar PDF" class="btn-info" invisible="state == 'draft'"/>
                     <button name="action_mark_done" type="object" string="Completar" class="btn-primary" invisible="state != 'draft'"/>
                     <button name="action_set_draft" type="object" string="Borrador" invisible="state == 'draft'"/>
                     <button name="action_cancel" type="object" string="Cancelar" invisible="state == 'cancelled'"/>
@@ -49,9 +50,12 @@
                                     <field name="value_number" optional="show"/>
                                     <field name="value_boolean" optional="show"/>
                                     <field name="value_text" optional="show"/>
-                                    <field name="value_text_long" optional="hide"/>
+                                    <field name="value_text_long" optional="show"/>
                                     <field name="value_date" optional="show"/>
                                     <field name="value_selection" optional="show"/>
+                                    <field name="value_image" optional="hide" widget="image" />
+                                    <field name="has_image" optional="hide" readonly="1"/>
+                                    <button name="action_view_image" type="object" icon="fa-image" title="Ver imagen" invisible="not has_image"/>
                                 </list>
                             </field>
                         </page>
@@ -69,5 +73,27 @@
         <field name="name">Evaluaciones</field>
         <field name="res_model">cs.followup.assessment</field>
         <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Vista modal para ver imagen -->
+    <record id="view_cs_followup_assessment_answer_image_modal" model="ir.ui.view">
+        <field name="name">cs.followup.assessment.answer.image.modal</field>
+        <field name="model">cs.followup.assessment.answer</field>
+        <field name="arch" type="xml">
+            <form string="Imagen">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="template_field_id" readonly="1"/>
+                            <field name="answer_type" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Imagen"/>
+                    <div class="o_center">
+                        <field name="value_image" widget="image" nolabel="1" style="max-width: 100%; height: auto;"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
     </record>
 </odoo>

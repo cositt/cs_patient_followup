@@ -16,10 +16,10 @@
                         <field name="code"/>
                     </group>
                     <group>
-                        <field name="help_text"/>
-                        <field name="option_values" invisible="field_type != 'selection'"/>
-                        <field name="min_value" invisible="field_type != 'scale_1_10'"/>
-                        <field name="max_value" invisible="field_type != 'scale_1_10'"/>
+                        <field name="help_text" placeholder="Texto de ayuda para el usuario (opcional)"/>
+                        <field name="option_values" invisible="field_type != 'selection'" placeholder="Una opción por línea"/>
+                        <field name="min_value" invisible="field_type != 'scale_1_10'" placeholder="Ej: 1"/>
+                        <field name="max_value" invisible="field_type != 'scale_1_10'" placeholder="Ej: 10"/>
                     </group>
                 </group>
                 <footer>

@@ -18,6 +18,7 @@
         "wizards/add_field_wizard_views.xml",
         "wizards/guided_answer_wizard_views.xml",
         "views/menu_views.xml",
+        "reports/assessment_report.xml",
     ],
     "installable": True,
     "application": True,

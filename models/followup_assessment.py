@@ -106,6 +106,11 @@ class FollowupAssessment(models.Model):
             "target": "new",
         }
 
+    def action_download_pdf(self):
+        """Genera y descarga un PDF de la evaluación"""
+        self.ensure_one()
+        return self.env.ref('cs_patient_followup_forms.report_followup_assessment_pdf').report_action(self)
+
     def _validate_answers_for_completion(self):
         self.ensure_one()
         for answer in self.answer_ids:
@@ -178,6 +183,7 @@ class FollowupAssessmentAnswer(models.Model):
             ("text_long", "Texto largo"),
             ("date", "Fecha"),
             ("selection", "Seleccion"),
+            ("image", "Imagen"),
         ],
         string="Tipo respuesta",
         compute="_compute_answer_type",
@@ -189,6 +195,8 @@ class FollowupAssessmentAnswer(models.Model):
     value_boolean = fields.Boolean(string="Valor si/no")
     value_date = fields.Date(string="Valor fecha")
     value_selection = fields.Char(string="Valor seleccion")
+    value_image = fields.Binary(string="Imagen", attachment=True)
+    has_image = fields.Boolean(string="Tiene imagen", compute="_compute_has_image", store=True)
     company_id = fields.Many2one(related="assessment_id.company_id", store=True, index=True)
 
     _sql_constraints = [
@@ -203,6 +211,11 @@ class FollowupAssessmentAnswer(models.Model):
     def _compute_answer_type(self):
         for rec in self:
             rec.answer_type = rec.template_field_id.field_type
+
+    @api.depends("value_image")
+    def _compute_has_image(self):
+        for rec in self:
+            rec.has_image = bool(rec.value_image)
 
     @api.constrains("template_field_id", "assessment_id")
     def _check_field_belongs_to_template(self):
@@ -224,3 +237,19 @@ class FollowupAssessmentAnswer(models.Model):
             # Permite guardar borradores incompletos; la validacion completa se ejecuta al marcar la evaluacion como completada.
             if rec.answer_type == "scale_1_10" and rec.value_number and (rec.value_number < 1 or rec.value_number > 10):
                 raise ValidationError(_("La escala debe estar entre 1 y 10."))
+
+    def action_view_image(self):
+        """Abre un modal para ver la imagen"""
+        self.ensure_one()
+        if not self.value_image:
+            raise ValidationError(_("Este campo no tiene imagen."))
+        
+        return {
+            "type": "ir.actions.act_window",
+            "name": f"Imagen - {self.template_field_id.name}",
+            "res_model": "cs.followup.assessment.answer",
+            "res_id": self.id,
+            "view_mode": "form",
+            "target": "new",
+            "context": {"form_view_ref": "cs_patient_followup_forms.view_cs_followup_assessment_answer_image_modal"},
+        }

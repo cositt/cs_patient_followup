@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Reporte PDF de Evaluación -->
+    <record id="report_followup_assessment_pdf" model="ir.actions.report">
+        <field name="name">Evaluación de Seguimiento</field>
+        <field name="model">cs.followup.assessment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cs_patient_followup_forms.report_assessment_followup_pdf_template</field>
+        <field name="print_report_name">'Evaluación - %s' % object.name</field>
+    </record>
+
+    <!-- Template del reporte -->
+    <template id="report_assessment_followup_pdf_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="assessment">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <h1 style="color: #1f77d0; margin: 0;">EVALUACIÓN DE SEGUIMIENTO</h1>
+                            <p style="color: #666; margin: 5px 0;"><t t-out="assessment.template_id.name"/></p>
+                        </div>
+
+                        <!-- Información General -->
+                        <table style="width: 100%; margin-bottom: 30px; border-collapse: collapse;">
+                            <tr style="background-color: #f0f0f0;">
+                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; width: 25%;">Paciente</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="assessment.patient_id.name"/></td>
+                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; width: 25%;">Fecha</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="assessment.assessment_date.strftime('%d/%m/%Y')"/></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Profesional</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="assessment.clinician_id.name"/></td>
+                                <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Empresa</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="assessment.company_id.name"/></td>
+                            </tr>
+                        </table>
+
+                        <!-- Respuestas por Sección -->
+                        <t t-set="current_section" t-value="False"/>
+                        <t t-foreach="assessment._ordered_answers()" t-as="answer">
+                            <!-- Cambio de sección -->
+                            <t t-if="current_section != answer.template_field_id.section_id">
+                                <t t-if="current_section">
+                                    <div style="page-break-inside: avoid; margin-top: 20px;"></div>
+                                </t>
+                                <h2 style="color: #1f77d0; font-size: 16px; margin-top: 20px; margin-bottom: 10px; border-bottom: 2px solid #1f77d0; padding-bottom: 5px;">
+                                    <t t-out="answer.template_field_id.section_id.name"/>
+                                </h2>
+                                <t t-set="current_section" t-value="answer.template_field_id.section_id"/>
+                            </t>
+
+                            <!-- Campo -->
+                            <div style="margin-bottom: 15px; padding: 10px; background-color: #fafafa; border-left: 3px solid #1f77d0;">
+                                <p style="margin: 0; font-weight: bold; color: #333;">
+                                    <t t-out="answer.template_field_id.name"/>
+                                    <t t-if="answer.template_field_id.required">
+                                        <span style="color: #d32f2f; font-weight: bold;">*</span>
+                                    </t>
+                                </p>
+
+                                <!-- Valor según tipo -->
+                                <div style="margin-top: 8px; padding: 8px; background-color: white;">
+                                    <t t-if="answer.answer_type == 'text_short'">
+                                        <p style="margin: 0;"><strong>Respuesta:</strong> <t t-out="answer.value_text or '(Sin respuesta)'"/></p>
+                                    </t>
+                                    <t t-elif="answer.answer_type == 'text_long'">
+                                        <p style="margin: 0;"><strong>Respuesta:</strong></p>
+                                        <p style="margin: 5px 0; padding: 5px; background-color: #f5f5f5;"><t t-out="answer.value_text_long or '(Sin respuesta)'"/></p>
+                                    </t>
+                                    <t t-elif="answer.answer_type == 'scale_1_10'">
+                                        <t t-set="score" t-value="int(answer.value_number) if answer.value_number else 0"/>
+                                        <p style="margin: 0;"><strong>Puntuación:</strong> <t t-out="str(score) + ' / 10' if score else '(Sin respuesta)'"/></p>
+                                    </t>
+                                    <t t-elif="answer.answer_type == 'boolean'">
+                                        <t t-set="bool_value" t-value="'Sí' if answer.value_boolean else 'No' if answer.value_boolean is not None else '(Sin respuesta)'"/>
+                                        <p style="margin: 0;"><strong>Respuesta:</strong> <t t-out="bool_value"/></p>
+                                    </t>
+                                    <t t-elif="answer.answer_type == 'date'">
+                                        <t t-set="date_value" t-value="answer.value_date.strftime('%d/%m/%Y') if answer.value_date else '(Sin respuesta)'"/>
+                                        <p style="margin: 0;"><strong>Fecha:</strong> <t t-out="date_value"/></p>
+                                    </t>
+                                    <t t-elif="answer.answer_type == 'selection'">
+                                        <p style="margin: 0;"><strong>Opción seleccionada:</strong> <t t-out="answer.value_selection or '(Sin respuesta)'"/></p>
+                                    </t>
+                                    <t t-elif="answer.answer_type == 'image'">
+                                        <t t-if="answer.value_image">
+                                            <p style="margin: 0; margin-bottom: 10px;"><strong>Imagen adjunta:</strong></p>
+                                            <div>
+                                                <img t-att-src="'data:image/png;base64,' + answer.value_image.decode('utf-8')" style="max-width: 300px; height: auto;"/>
+                                            </div>
+                                        </t>
+                                        <t t-else="">
+                                            <p style="margin: 0;"><strong>Imagen:</strong> (Sin imagen adjunta)</p>
+                                        </t>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Observaciones -->
+                        <t t-if="assessment.notes">
+                            <div style="margin-top: 30px; padding: 15px; background-color: #f0f0f0;">
+                                <h3 style="margin-top: 0; color: #1f77d0;">Observaciones Adicionales</h3>
+                                <p style="margin: 0;"><t t-out="assessment.notes"/></p>
+                            </div>
+                        </t>
+
+                        <!-- Footer -->
+                        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #ddd; text-align: center; font-size: 12px; color: #666;">
+                            <p style="margin: 0;">
+                                Documento generado automáticamente
+                            </p>
+                            <p style="margin: 5px 0;">
+                                Centro Sanitario - Sistema de Seguimiento de Pacientes
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

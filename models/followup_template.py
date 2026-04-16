@@ -123,6 +123,7 @@ class FollowupTemplateField(models.Model):
             ("text_long", "Texto largo"),
             ("date", "Fecha"),
             ("selection", "Seleccion"),
+            ("image", "Imagen"),
         ],
         string="Tipo",
         required=True,
