@@ -5,7 +5,7 @@
         <field name="name">Evaluación de Seguimiento</field>
         <field name="model">cs.followup.assessment</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">cs_patient_followup_forms.report_assessment_followup_pdf_template</field>
+        <field name="report_name">cs_patient_followup.report_assessment_followup_pdf_template</field>
         <field name="print_report_name">'Evaluación - %s' % object.name</field>
     </record>
 
