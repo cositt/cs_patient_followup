@@ -4,7 +4,7 @@
         id="menu_followup_root"
         name="Followup Pacientes"
         sequence="40"
-        web_icon="cs_patient_followup_forms,static/icon.png"
+        web_icon="cs_patient_followup,static/description/icon.png"
     />
 
     <menuitem id="menu_followup_templates" name="Plantillas" parent="menu_followup_root" action="action_cs_followup_template" sequence="10"/>

@@ -6,8 +6,7 @@
     "author": "Cositt Technologies",
     "website": "https://www.cositt.com",
     "license": "LGPL-3",
-    "icon": "/cs_patient_followup_forms/static/icon.png",
-    "images": ["static/icon.png"],
+    "images": ["static/description/icon.png"],
     "depends": ["base", "mail", "contacts"],
     "data": [
         "security/security.xml",

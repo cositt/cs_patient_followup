@@ -109,7 +109,7 @@ class FollowupAssessment(models.Model):
     def action_download_pdf(self):
         """Genera y descarga un PDF de la evaluación"""
         self.ensure_one()
-        return self.env.ref('cs_patient_followup_forms.report_followup_assessment_pdf').report_action(self)
+        return self.env.ref('cs_patient_followup.report_followup_assessment_pdf').report_action(self)
 
     def _validate_answers_for_completion(self):
         self.ensure_one()
@@ -251,5 +251,5 @@ class FollowupAssessmentAnswer(models.Model):
             "res_id": self.id,
             "view_mode": "form",
             "target": "new",
-            "context": {"form_view_ref": "cs_patient_followup_forms.view_cs_followup_assessment_answer_image_modal"},
+            "context": {"form_view_ref": "cs_patient_followup.view_cs_followup_assessment_answer_image_modal"},
         }
